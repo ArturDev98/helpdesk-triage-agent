@@ -1,0 +1,47 @@
+# Configuración de la demo. Todo es ficticio: tickets, issues, código y personas.
+
+[source]
+type = "json"                       # implementa TicketSource para SysAid, Zendesk, Jira SM, GLPI…
+tickets = "demo/tickets.json"
+issues = "demo/known_issues.json"
+
+[brain]
+type = "offline"                    # "claude" usa la API (ANTHROPIC_API_KEY o `ant auth login`)
+model = "claude-opus-5-5"
+
+[project]
+profile = "profiles/tienda.md"
+code_paths = ["demo/codebase/tienda"]
+
+[chat]
+style = "console"                   # google-chat | slack | console
+webhook_env = "CHAT_WEBHOOK_URL"    # la URL del webhook va en esta variable, nunca en el archivo
+
+[store]
+path = "data/triage.db"
+
+[dashboard]
+path = "data/dashboard.html"
+
+[memory]
+closed_days = 90                    # tickets cerrados que se comparan con los nuevos
+max_closed = 60
+today = "2026-11-10"               # solo para la demo; en uso real se borra y vale la fecha actual
+
+# Palabras clave por módulo: el triage offline y la búsqueda en el código las usan.
+[modules.cupones]
+keywords = ["cupón", "descuento", "oferta", "promoción"]
+[modules.pagos]
+keywords = ["pago", "pse", "tarjeta", "banco", "debitó", "cobro", "pasarela"]
+[modules.envios]
+keywords = ["envío", "envio", "ciudad", "transportadora", "guía", "despacho"]
+[modules.inventario]
+keywords = ["inventario", "agotado", "bodega", "unidades", "existencias", "reserva"]
+[modules.cuentas]
+keywords = ["contraseña", "sesión", "registro", "recuperar", "correo de recuperación"]
+
+# Solo para el triage offline; el orden importa. Lo que no encaje es incidente.
+[categories]
+operativo = ["servidor", "vpn", "certificado", "disco lleno", "tiempo de espera"]
+requerimiento = ["necesitamos agregar", "solicitamos", "nuevo reporte", "pide agregar"]
+consulta = ["cómo exporto", "dónde encuentro", "se puede"]

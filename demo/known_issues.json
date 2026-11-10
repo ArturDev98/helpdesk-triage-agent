@@ -1,0 +1,23 @@
+[
+  {
+    "key": "TIENDA-101",
+    "title": "El cupón de descuento no aplica si el carrito tiene un producto en oferta",
+    "description": "Con un solo producto en oferta en el carrito, aplicar_cupon devuelve 0 para todo el carrito. Debería excluir solo los productos en oferta y descontar el resto.",
+    "status": "En desarrollo",
+    "url": "https://tracker.ejemplo.dev/browse/TIENDA-101"
+  },
+  {
+    "key": "TIENDA-87",
+    "title": "Doble cobro con tarjeta cuando el cliente reintenta el pago",
+    "description": "Si la pasarela tarda y el cliente pulsa pagar de nuevo se crean dos cobros. Se agregó llave de idempotencia.",
+    "status": "Cerrado",
+    "url": "https://tracker.ejemplo.dev/browse/TIENDA-87"
+  },
+  {
+    "key": "TIENDA-110",
+    "title": "Reporte de ventas en CSV muestra mal las tildes al abrirlo en Excel",
+    "description": "El archivo se genera en UTF-8 sin BOM y Excel lo abre como ANSI; los nombres con tilde salen dañados.",
+    "status": "Abierto",
+    "url": "https://tracker.ejemplo.dev/browse/TIENDA-110"
+  }
+]

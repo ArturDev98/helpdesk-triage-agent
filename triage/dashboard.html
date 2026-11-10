@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mesa de ayuda · Triage</title>
+<style>
+  :root { --bg:#0f1115; --panel:#181b21; --panel2:#20242c; --border:#2b303a; --text:#e8ebf0; --muted:#98a1b0;
+          --accent:#22c55e; --red:#ef4444; --amber:#f59e0b; --blue:#3b82f6; --violet:#a78bfa; }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#f5f6f8; --panel:#fff; --panel2:#eef0f3; --border:#dde1e7; --text:#15171c; --muted:#5b6472; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:14px/1.5 system-ui, "Segoe UI", sans-serif; }
+  header { padding:18px 24px; background:var(--panel); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; }
+  header h1 { margin:0; font-size:20px; }
+  main { max-width:1200px; margin:0 auto; padding:24px 16px 60px; }
+  .muted { color:var(--muted); } .small { font-size:12px; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; }
+  .panel { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px; }
+  .kpi b { display:block; font-size:28px; }
+  .kpi span { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  h2 { font-size:16px; margin:28px 0 12px; }
+  .grid2 { display:grid; grid-template-columns:2fr 1fr; gap:12px; }
+  svg { width:100%; height:auto; display:block; } svg text { fill:var(--muted); font-size:11px; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:12px; margin-top:6px; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+  .hbar { display:flex; align-items:center; gap:8px; margin:6px 0; }
+  .hbar .name { width:96px; } .hbar .track { flex:1; height:10px; background:var(--panel2); border-radius:5px; }
+  .hbar .fill { height:100%; background:var(--blue); border-radius:5px; }
+  .filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  select, input { background:var(--panel); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:7px 10px; }
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; font-weight:500; color:var(--muted); font-size:12px; }
+  th, td { padding:9px 10px; border-bottom:1px solid var(--border); vertical-align:top; }
+  tbody tr { cursor:pointer; } tbody tr:hover { background:var(--panel2); }
+  .tag { display:inline-block; padding:1px 8px; border-radius:999px; font-size:12px; background:var(--panel2); }
+  .sev-alta { background:var(--red); color:#fff; } .sev-media { background:var(--amber); color:#111; }
+  .detail { position:fixed; inset:0 0 0 auto; width:min(560px, 100%); background:var(--panel); border-left:1px solid var(--border);
+            padding:22px; overflow:auto; transform:translateX(100%); transition:transform .2s; box-shadow:-8px 0 30px rgba(0,0,0,.3); }
+  .detail.open { transform:none; }
+  .detail h3 { margin:0 0 4px; } .detail section { margin-top:18px; }
+  .detail pre { white-space:pre-wrap; background:var(--panel2); padding:10px; border-radius:8px; }
+  .close { float:right; background:none; border:0; color:var(--text); font-size:22px; cursor:pointer; }
+  @media (max-width: 800px) { .grid2 { grid-template-columns:1fr; } .hide-sm { display:none; } }
+</style>
+</head>
+<body>
+<header><h1>Mesa de ayuda · Triage</h1><span class="muted small" id="generated"></span></header>
+<main>
+  <div class="kpis" id="kpis"></div>
+  <div class="grid2">
+    <div><h2>Tickets por semana</h2><div class="panel"><div id="weekly"></div><div class="legend" id="legend"></div></div></div>
+    <div><h2>Por módulo</h2><div class="panel" id="modules"></div></div>
+  </div>
+  <h2>Tickets</h2>
+  <div class="filters">
+    <input id="q" placeholder="Buscar…">
+    <select id="fcat"><option value="">Todas las categorías</option></select>
+    <select id="fmod"><option value="">Todos los módulos</option></select>
+    <select id="fstatus"><option value="">Abiertos y cerrados</option><option>abierto</option><option>cerrado</option></select>
+  </div>
+  <div class="panel" style="padding:0;overflow-x:auto">
+    <table><thead><tr><th>Ticket</th><th>Título</th><th>Categoría</th><th class="hide-sm">Módulo</th><th>Severidad</th><th class="hide-sm">Acción</th></tr></thead>
+    <tbody id="rows"></tbody></table>
+  </div>
+</main>
+<aside class="detail" id="detail"></aside>
+<script>
+const DATA = /*__DATA__*/null;
+const COLORS = { incidente: 'var(--red)', consulta: 'var(--blue)', operativo: 'var(--amber)', requerimiento: 'var(--violet)', 'sin triage': 'var(--muted)' };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const tickets = DATA.tickets.filter(t => t.processed_at);
+const pct = (n, d) => d ? Math.round(100 * n / d) + ' %' : '—';
+document.getElementById('generated').textContent = 'Generado ' + new Date(DATA.generatedAt).toLocaleString('es-CO');
+
+const related = tickets.filter(t => t.relation_kind && t.relation_kind !== 'none' && t.relation_confidence !== 'baja').length;
+const diagnosed = tickets.filter(t => t.diagnosis).length;
+const highOpen = tickets.filter(t => t.severity === 'alta' && t.status === 'abierto').length;
+const manual = tickets.filter(t => t.error).length;
+document.getElementById('kpis').innerHTML = [
+  [tickets.length, 'Tickets analizados'], [pct(related, tickets.length), 'Ya conocidos'],
+  [pct(diagnosed, tickets.length), 'Con diagnóstico de código'], [highOpen, 'Severidad alta abiertos'], [manual, 'Para revisión manual'],
+].map(([v, l]) => `<div class="panel kpi"><span>${l}</span><b>${v}</b></div>`).join('');
+
+function week(iso) {
+  const d = new Date(iso.slice(0, 10) + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return d.toISOString().slice(0, 10);
+}
+(function weekly() {
+  const cats = Object.keys(COLORS);
+  const byWeek = {};
+  tickets.forEach(t => { const w = week(t.opened_at); (byWeek[w] ??= {})[t.category || 'sin triage'] = ((byWeek[w] ?? {})[t.category || 'sin triage'] || 0) + 1; });
+  const weeks = Object.keys(byWeek).sort();
+  if (!weeks.length) { document.getElementById('weekly').innerHTML = '<p class="muted">Sin datos.</p>'; return; }
+  const W = 700, H = 220, pad = 30, max = Math.max(...weeks.map(w => Object.values(byWeek[w]).reduce((a, b) => a + b, 0)));
+  const bw = (W - pad) / weeks.length;
+  let svg = `<svg viewBox="0 0 ${W} ${H}">`;
+  weeks.forEach((w, i) => {
+    let y = H - 24;
+    cats.forEach(c => {
+      const n = byWeek[w][c] || 0; if (!n) return;
+      const h = n / max * (H - 40); y -= h;
+      svg += `<rect x="${pad + i * bw + 3}" y="${y}" width="${bw - 6}" height="${h}" fill="${COLORS[c]}" rx="2"><title>${w} · ${c}: ${n}</title></rect>`;
+    });
+    svg += `<text x="${pad + i * bw + bw / 2}" y="${H - 6}" text-anchor="middle">${w.slice(5)}</text>`;
+  });
+  svg += `<text x="4" y="16">${max}</text></svg>`;
+  document.getElementById('weekly').innerHTML = svg;
+  document.getElementById('legend').innerHTML = cats.map(c => `<span><i class="dot" style="background:${COLORS[c]}"></i>${c}</span>`).join('');
+})();
+
+(function modules() {
+  const counts = {};
+  tickets.forEach(t => counts[t.module || '—'] = (counts[t.module || '—'] || 0) + 1);
+  const max = Math.max(1, ...Object.values(counts));
+  document.getElementById('modules').innerHTML = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([m, n]) =>
+    `<div class="hbar"><span class="name">${esc(m)}</span><span class="track"><span class="fill" style="display:block;width:${100 * n / max}%"></span></span><b>${n}</b></div>`).join('');
+})();
+
+const fill = (id, values) => document.getElementById(id).insertAdjacentHTML('beforeend', [...new Set(values.filter(Boolean))].sort().map(v => `<option>${esc(v)}</option>`).join(''));
+fill('fcat', tickets.map(t => t.category)); fill('fmod', tickets.map(t => t.module));
+function draw() {
+  const q = document.getElementById('q').value.toLowerCase(), cat = document.getElementById('fcat').value;
+  const mod = document.getElementById('fmod').value, st = document.getElementById('fstatus').value;
+  document.getElementById('rows').innerHTML = tickets
+    .filter(t => (!cat || t.category === cat) && (!mod || t.module === mod) && (!st || t.status === st)
+      && (t.id + ' ' + t.title + ' ' + (t.summary || '')).toLowerCase().includes(q))
+    .map(t => `<tr data-id="${esc(t.id)}"><td>${esc(t.id)}<div class="muted small">${t.opened_at.slice(0, 10)}</div></td>
+      <td>${esc(t.title)}</td><td><i class="dot" style="background:${COLORS[t.category || 'sin triage']}"></i>${esc(t.category || 'error')}</td>
+      <td class="hide-sm">${esc(t.module || '—')}</td><td><span class="tag sev-${esc(t.severity)}">${esc(t.severity || '—')}</span></td>
+      <td class="hide-sm small">${esc(t.action)}</td></tr>`).join('');
+  document.querySelectorAll('#rows tr').forEach(tr => tr.onclick = () => show(tr.dataset.id));
+}
+['q', 'fcat', 'fmod', 'fstatus'].forEach(id => document.getElementById(id).addEventListener('input', draw));
+draw();
+
+function show(id) {
+  const t = tickets.find(x => x.id === id), d = t.diagnosis, issue = DATA.issues[t.relation_ref];
+  const ref = issue ? (issue.url ? `<a href="${esc(issue.url)}" target="_blank" rel="noopener">${esc(t.relation_ref)}</a>` : esc(t.relation_ref)) + ` · ${esc(issue.title)} (${esc(issue.status)})` : esc(t.relation_ref);
+  const panel = document.getElementById('detail');
+  panel.innerHTML = `<button class="close" aria-label="Cerrar">×</button>
+    <h3>${esc(t.id)} · ${esc(t.title)}</h3>
+    <div class="muted small">${esc(t.category)} · ${esc(t.module)} · severidad ${esc(t.severity)} · ${esc(t.status)} · analizado por ${esc(t.brain)}</div>
+    <section><b>Descripción</b> <span class="muted small">(datos personales redactados)</span><pre>${esc(t.description)}</pre></section>
+    ${t.error ? `<section><b>Error</b><p>${esc(t.error)}</p></section>` : ''}
+    ${t.relation_kind && t.relation_kind !== 'none' ? `<section><b>${t.relation_kind === 'known_issue' ? 'Issue conocido' : 'Ticket anterior'}</b>
+      <p>${ref} · confianza ${esc(t.relation_confidence)}</p><p class="muted">${esc(t.relation_reason)}</p></section>` : ''}
+    ${d ? `<section><b>Diagnóstico</b><p>${esc(d.hypothesis)}</p>
+      ${d.files.length ? `<p class="small">${d.files.map(f => `<code>${esc(f)}</code>`).join('<br>')}</p>` : ''}
+      <ol>${d.verify.map(v => `<li>${esc(v)}</li>`).join('')}</ol>
+      <p><b>Respuesta sugerida:</b> ${esc(d.reply)}</p></section>` : ''}
+    <section><b>Acción</b><p>${esc(t.action)}</p></section>
+    ${t.solution ? `<section><b>Solución real</b><p>${esc(t.solution)}</p><p class="muted small">Cerrado ${esc((t.closed_at || '').slice(0, 10))}</p></section>` : ''}`;
+  panel.classList.add('open');
+  panel.querySelector('.close').onclick = () => panel.classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('detail').classList.remove('open'); });
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+[
+  {
+    "id": "T-1001", "status": "cerrado", "opened_at": "2026-09-22T09:12:00", "closed_at": "2026-09-22T15:40:00",
+    "title": "No llega el correo para recuperar la contraseña",
+    "description": "La clienta pide recuperar la contraseña desde la app y el correo de recuperación nunca le llega.",
+    "solution": "El correo de recuperación estaba llegando a spam por el dominio del remitente. Se reenvió y se pidió a la clienta marcarlo como seguro; infraestructura ajustó el registro SPF.",
+    "requester": {"name": "Paula Gómez (ficticia)", "email": "paula.gomez@correo.ejemplo"}
+  },
+  {
+    "id": "T-1002", "status": "cerrado", "opened_at": "2026-10-03T11:05:00", "closed_at": "2026-10-03T13:20:00",
+    "title": "Pago por PSE quedó pendiente y el pedido no se confirma",
+    "description": "El cliente pagó por PSE, el banco le debitó, pero el pedido sigue en pago pendiente y no se ha despachado.",
+    "solution": "Se verificó el pago en el portal del banco y se confirmó el pedido manualmente. La conciliación automática corre cada hora; si pasa más de una hora, escalar a pagos.",
+    "requester": {"name": "Andrés Ruiz (ficticio)", "email": "aruiz@correo.ejemplo"}
+  },
+  {
+    "id": "T-1003", "status": "cerrado", "opened_at": "2026-10-08T16:30:00", "closed_at": "2026-10-09T08:10:00",
+    "title": "El cupón BIENVENIDA no hace descuento",
+    "description": "Un cliente nuevo aplica el cupón BIENVENIDA y el total no cambia.",
+    "solution": "El cupón venció el 30 de septiembre. Mercadeo creó BIENVENIDA2 con vigencia hasta diciembre.",
+    "requester": {"name": "Servicio al cliente", "email": "servicio@tienda.ejemplo"}
+  },
+  {
+    "id": "T-1004", "status": "cerrado", "opened_at": "2026-10-14T07:50:00", "closed_at": "2026-10-14T10:00:00",
+    "title": "Alerta: el certificado del sitio vence en 5 días",
+    "description": "Llegó la alerta del monitoreo indicando que el certificado SSL del dominio principal vence pronto.",
+    "solution": "Infraestructura renovó el certificado y activó la renovación automática.",
+    "requester": {"name": "Monitoreo", "email": "alertas@tienda.ejemplo"}
+  },
+  {
+    "id": "T-1010", "status": "abierto", "opened_at": "2026-10-27T10:20:00",
+    "title": "Cobran envío en un pedido de 150.000 justos",
+    "description": "La clienta Marta Díaz (marta.diaz@correo.ejemplo, cel 310 555 0123, CC 1.098.765.432) hizo un pedido de 150.000 exactos en Bucaramanga y le cobraron 12.000 de envío. La página dice envío gratis desde 150.000.",
+    "requester": {"name": "Marta Díaz (ficticia)", "email": "marta.diaz@correo.ejemplo"}
+  },
+  {
+    "id": "T-1011", "status": "abierto", "opened_at": "2026-10-28T14:02:00",
+    "title": "El cupón NAVIDAD20 no descuenta cuando hay un producto en oferta en el carrito",
+    "description": "Con el cupón NAVIDAD20 el descuento queda en cero si el carrito tiene cualquier producto en oferta. Sin el producto en oferta sí aplica.",
+    "requester": {"name": "Servicio al cliente", "email": "servicio@tienda.ejemplo"}
+  },
+  {
+    "id": "T-1012", "status": "abierto", "opened_at": "2026-11-02T09:41:00",
+    "title": "Pedido con pago PSE pendiente, el banco ya debitó",
+    "description": "El cliente pagó por PSE hace 3 horas, el banco ya le debitó el dinero y el pedido no se confirma.",
+    "requester": {"name": "Jorge Peña (ficticio)", "email": "jpena@correo.ejemplo"}
+  },
+  {
+    "id": "T-1013", "status": "abierto", "opened_at": "2026-11-03T08:15:00",
+    "title": "¿Cómo exporto el reporte de ventas del mes?",
+    "description": "Soy nueva en el equipo administrativo y necesito sacar las ventas de octubre para contabilidad.",
+    "requester": {"name": "Laura Ortiz (ficticia)", "email": "lortiz@tienda.ejemplo"}
+  },
+  {
+    "id": "T-1014", "status": "abierto", "opened_at": "2026-11-04T11:30:00",
+    "title": "Necesitamos agregar Nequi como medio de pago",
+    "description": "Comercial pide agregar Nequi en el checkout para la temporada de diciembre.",
+    "requester": {"name": "Gerencia comercial", "email": "comercial@tienda.ejemplo"}
+  },
+  {
+    "id": "T-1015", "status": "abierto", "opened_at": "2026-11-05T07:05:00",
+    "title": "El servidor de pruebas no responde desde la VPN",
+    "description": "Desde esta mañana ninguno del equipo puede entrar al servidor de pruebas por la VPN; da tiempo de espera agotado.",
+    "requester": {"name": "Equipo QA", "email": "qa@tienda.ejemplo"}
+  },
+  {
+    "id": "T-1016", "status": "abierto", "opened_at": "2026-11-06T15:48:00",
+    "title": "Producto aparece agotado aunque hay unidades en bodega",
+    "description": "Después de varios pagos rechazados, la camiseta básica sale agotada en la tienda, pero la bodega reporta 14 unidades. Al rato vuelve a aparecer disponible.",
+    "requester": {"name": "Bodega central", "email": "bodega@tienda.ejemplo"}
+  },
+  {
+    "id": "T-1017", "status": "abierto", "opened_at": "2026-11-08T12:10:00",
+    "title": "Al cambiar la ciudad de entrega se cobra envío en pedido con envío gratis",
+    "description": "El pedido tenía envío gratis (subtotal de 220.000). El cliente cambió la ciudad de Bogotá a Cali en el resumen y apareció un cobro de envío de 11.000.",
+    "requester": {"name": "Servicio al cliente", "email": "servicio@tienda.ejemplo"}
+  },
+  {
+    "id": "T-1018", "status": "abierto", "opened_at": "2026-11-09T17:22:00",
+    "title": "No me llega el correo para recuperar la contraseña",
+    "description": "Un cliente intenta recuperar la contraseña y el correo de recuperación no llega. Escribe desde el 3005550199.",
+    "requester": {"name": "Felipe Mora (ficticio)", "email": "fmora@correo.ejemplo"}
+  }
+]

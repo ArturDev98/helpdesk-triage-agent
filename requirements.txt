@@ -1,0 +1,2 @@
+# Solo para [brain] type = "claude"; la demo offline no necesita nada.
+anthropic>=0.117
